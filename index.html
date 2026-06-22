@@ -1,0 +1,261 @@
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9LOG CANTEEN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+
+
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .camera-container { position: relative; width: 100%; max-width: 640px; margin: 0 auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .camera-feed { width: 100%; height: auto; display: block; user-select: none; -webkit-user-drag: none; }
+        .scan-box { position: absolute; border: 3px solid #0ea5e9; background-color: rgba(14, 165, 233, 0.15); border-radius: 6px; touch-action: none; box-sizing: border-box; }
+        .box-label { position: absolute; top: -25px; left: -3px; background-color: #0ea5e9; color: white; font-size: 11px; padding: 2px 6px; border-radius: 4px 4px 0 0; font-weight: bold; white-space: nowrap; }
+        .box-close { position: absolute; top: -10px; right: -10px; background-color: #ef4444; color: white; border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 18px; font-size: 12px; cursor: pointer; font-weight: bold; border: 1px solid white; }
+        .invoice-card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .qr-container { border: 2px dashed #e2e8f0; border-radius: 8px; padding: 15px; background: #fff; text-align: center; }
+        .option-select { font-size: 12px; padding: 2px 5px; border-radius: 4px; margin-top: 4px; border: 1px solid #cbd5e1; background-color: #f8fafc; color: #475569; width: 100%; max-width: 200px; }
+    </style>
+</head>
+<body>
+
+
+<div class="container-fluid py-4 px-4">
+    <div class="d-flex align-items-center mb-4 bg-white p-3 rounded-3 shadow-sm">
+        <div class="bg-primary text-white p-3 rounded-3 me-3"><i class="fa-solid fa-camera fa-2xl"></i></div>
+        <div>
+            <h3 class="mb-0 fw-bold text-dark">9LOG CANTEEN</h3>
+            <small class="text-muted">Thiết bị: <strong class="text-primary">HD115155</strong> | Tài khoản đích: ACB - 47033537</small>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xl-7 col-lg-6 mb-4">
+            <div class="card p-3 border-0 shadow-sm mb-3">
+                <div class="camera-container" id="cam-container">
+                    <img src="/video_feed" class="camera-feed" id="video" alt="Live Stream">
+                   
+                    <div class="scan-box" id="box1" style="top: 5%; left: 4%; width: 30%; height: 26%;" data-name="Box 1">
+                        <span class="box-label">Box 1</span><span class="box-close" onclick="removeBox('box1')">×</span>
+                    </div>
+                    <div class="scan-box" id="box2" style="top: 5%; left: 36%; width: 28%; height: 26%;" data-name="Box 2">
+                        <span class="box-label">Box 2</span><span class="box-close" onclick="removeBox('box2')">×</span>
+                    </div>
+                    <div class="scan-box" id="box3" style="top: 5%; left: 66%; width: 30%; height: 26%;" data-name="Box 3">
+                        <span class="box-label">Box 3</span><span class="box-close" onclick="removeBox('box3')">×</span>
+                    </div>
+                    <div class="scan-box" id="box4" style="top: 36%; left: 4%; width: 40%; height: 55%;" data-name="Box 4">
+                        <span class="box-label">Box 4</span><span class="box-close" onclick="removeBox('box4')">×</span>
+                    </div>
+                    <div class="scan-box" id="box5" style="top: 36%; left: 48%; width: 48%; height: 55%;" data-name="Box 5">
+                        <span class="box-label">Box 5</span><span class="box-close" onclick="removeBox('box5')">×</span>
+                    </div>
+                </div>
+
+
+                <div class="row g-2 mt-3 justify-content-center">
+                    <div class="col-sm-6"><button class="btn btn-outline-secondary w-100 py-2" onclick="location.reload()"><i class="fa-solid fa-rotate me-2"></i>Khôi phục 5 Box</button></div>
+                    <div class="col-sm-6"><button class="btn btn-outline-danger w-100 py-2" onclick="clearAllBoxes()"><i class="fa-solid fa-trash me-2"></i>Xóa tất cả Box</button></div>
+                </div>
+                <div class="mt-2"><button id="btn-predict" class="btn btn-success btn-lg w-100 py-3 fw-bold shadow"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>NHẬN DIỆN MÓN & TÍNH TOÁN HOÁ ĐƠN</button></div>
+            </div>
+        </div>
+
+
+        <div class="col-xl-5 col-lg-6">
+            <div class="card invoice-card p-4 bg-white">
+                <div class="row">
+                    <div class="col-md-7 border-end">
+                        <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-receipt me-2"></i>MÓN ĐÃ CHỌN</h5>
+                        <div id="food-list-area" class="pe-2" style="max-height: 320px; overflow-y: auto;">
+                            <p class="text-muted text-center py-4">Chưa có thông tin quét...</p>
+                        </div>
+                    </div>
+                   
+                    <div class="col-md-5 ps-md-3 text-center d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-qrcode me-2"></i>THANH TOÁN</h5>
+                            <div class="qr-container shadow-sm mx-auto" style="max-width: 150px;">
+                                <img id="qr-code" src="https://img.vietqr.io/image/acb-47033537-compact.png?amount=0&addInfo=QUET%20KHAY%20COM" class="img-fluid" alt="ACB QR">
+                            </div>
+                        </div>
+                        <div class="mt-2"><small class="text-muted d-block"><i class="fa-solid fa-circle-check text-success me-1"></i>ACB ONE</small></div>
+                    </div>
+                </div>
+
+
+                <div class="bg-light p-3 rounded-3 mt-4 border">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-coins me-2"></i>TỔNG THANH TOÁN</h5>
+                    <div class="d-flex justify-content-between mb-2"><span>Số lượng:</span><strong id="count-items">0 món</strong></div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fs-5 fw-bold text-danger">Thành tiền:</span>
+                        <h3 class="mb-0 fw-bold text-danger" id="final-total">0 đ</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+   
+    interact('.scan-box').draggable({
+        listeners: {
+            move (event) {
+                const target = event.target;
+                let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            }
+        }
+    }).resizable({
+        edges: { left: true, right: true, bottom: true, top: true },
+        listeners: {
+            move (event) {
+                const target = event.target;
+                let x = (parseFloat(target.getAttribute('data-x')) || 0);
+                let y = (parseFloat(target.getAttribute('data-y')) || 0);
+                target.style.width = event.rect.width + 'px';
+                target.style.height = event.rect.height + 'px';
+                x += event.deltaRect.left; y += event.deltaRect.top;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                target.setAttribute('data-x', x); target.setAttribute('data-y', y);
+            }
+        }
+    });
+
+
+    function removeBox(id) { document.getElementById(id).remove(); }
+    function clearAllBoxes() { document.querySelectorAll('.scan-box').forEach(el => el.remove()); }
+
+
+   
+    function calculateLiveTotal() {
+        let totalBill = 0;
+        const rows = document.querySelectorAll('.food-item-row');
+       
+        rows.forEach(row => {
+            const basePrice = parseInt(row.getAttribute('data-base-price')) || 0;
+            const selectOpt = row.querySelector('.option-select');
+            let extraPrice = 0;
+           
+            if (selectOpt) {
+               
+                const selectedOption = selectOpt.options[selectOpt.selectedIndex];
+                extraPrice = parseInt(selectedOption.getAttribute('data-extra')) || 0;
+            }
+           
+            totalBill += (basePrice + extraPrice);
+        });
+
+
+       
+        document.getElementById('final-total').innerText = totalBill.toLocaleString('vi-VN') + " đ";
+
+
+       
+        document.getElementById('qr-code').src = `https://img.vietqr.io/image/acb-47033537-compact.png?amount=${totalBill}&addInfo=THANH%20TOAN%20KHAY%20COM`;
+    }
+
+
+   
+    const btnPredict = document.getElementById('btn-predict');
+    btnPredict.addEventListener('click', () => {
+        const container = document.getElementById('cam-container');
+        const imgVideo = document.getElementById('video');
+        const cW = imgVideo.clientWidth;
+        const cH = imgVideo.clientHeight;
+        let boxesData = {};
+
+
+        document.querySelectorAll('.scan-box').forEach(box => {
+            const name = box.getAttribute('data-name');
+            const rect = box.getBoundingClientRect();
+            const pRect = container.getBoundingClientRect();
+            let ymin = Math.max(0, (rect.top - pRect.top) / cH);
+            let xmin = Math.max(0, (rect.left - pRect.left) / cW);
+            let ymax = Math.min(1, ((rect.top - pRect.top) + rect.height) / cH);
+            let xmax = Math.min(1, ((rect.left - pRect.left) + rect.width) / cW);
+            boxesData[name] = [ymin, xmin, ymax, xmax];
+        });
+
+
+        document.getElementById('food-list-area').innerHTML = `<p class="text-center text-muted py-4"><i class="fa-solid fa-circle-notch fa-spin me-2"></i>Đang phân tích khay...</p>`;
+
+
+        fetch('/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ boxes: boxesData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            let listHtml = '';
+            if(!data.items || data.items.length === 0) {
+                listHtml = '<p class="text-muted text-center py-4">Không phát hiện món ăn!</p>';
+                document.getElementById('food-list-area').innerHTML = listHtml;
+                document.getElementById('count-items').innerText = "0 món";
+                calculateLiveTotal();
+                return;
+            }
+
+
+            data.items.forEach((item, index) => {
+                let optionsHtml = '';
+                // Nếu món này backend báo có Option thì sinh thẻ select
+                if (item.options && item.options.length > 0) {
+                    optionsHtml += `<select class="option-select" onchange="calculateLiveTotal()">`;
+                    item.options.forEach(opt => {
+                        optionsHtml += `<option value="${opt.id}" data-extra="${opt.extra_price}">${opt.text}</option>`;
+                    });
+                    optionsHtml += `</select>`;
+                } else {
+                    optionsHtml = `<small class="text-muted" style="font-size:11px;">Món chuẩn không có tùy chọn</small>`;
+                }
+
+
+                listHtml += `
+                <div class="mb-3 border-bottom pb-2 food-item-row" data-base-price="${item.gia_goc}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-0 fw-bold text-dark">${item.mon}</h6>
+                            <small class="text-secondary d-block" style="font-size:10px;">Vị trí: ${item.vung} | Độ tin cậy: ${item.conf}%</small>
+                            ${optionsHtml}
+                        </div>
+                        <span class="fw-bold text-primary">${item.gia_goc.toLocaleString('vi-VN')} đ</span>
+                    </div>
+                </div>`;
+            });
+           
+            document.getElementById('food-list-area').innerHTML = listHtml;
+            document.getElementById('count-items').innerText = data.items.length + " món";
+           
+           
+            calculateLiveTotal();
+        })
+        .catch(err => {
+            document.getElementById('food-list-area').innerHTML = '<p class="text-danger text-center py-4">Lỗi máy chủ kết nối!</p>';
+        });
+    });
+</script>
+</body>
+</html>
+
